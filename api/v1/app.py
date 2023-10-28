@@ -1,7 +1,10 @@
+#!/usr/bin.python3
+"""declare method storage.close"""
 from flask import Flask
 from api.v1.views import app_views
 from models import storage
 import os
+
 
 app = Flask(__name__)
 
