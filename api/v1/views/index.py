@@ -15,6 +15,7 @@ from models.user import User
 def status():
     return jsonify({"status": "OK"})
 
+
 @app_views.route("/stats")
 def count_obj():
     object_counts = {
