@@ -7,6 +7,7 @@ from api.v1.views import app_views
 from models import storage
 from api.v1.app import not_found_error
 
+
 @app_views.route("/states/<state_id>/cities", strict_slashes=False)
 def get_cities(state_id):
     """return list of all cities"""
@@ -21,7 +22,6 @@ def get_cities(state_id):
 
 @app_views.route('/cities/<city_id>', methods=['GET'],
                  strict_slashes=False)
-
 def get_city(city_id):
     """ get city by id"""
     city = storage.get(City, city_id)
@@ -32,7 +32,6 @@ def get_city(city_id):
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'],
                  strict_slashes=False)
-
 def delete_city(city_id):
     """ delete city by id"""
     cities = storage.all("City").values()
@@ -44,7 +43,8 @@ def delete_city(city_id):
     return not_found_error("error")
 
 
-@app_views.route("/states/<state_id>/cities", strict_slashes=False, methods=["POST"])
+@app_views.route('/states/<state_id>/cities', methods=['POST'],
+                 strict_slashes=False)
 def post_city(state_id):
     """create a city"""
     state = storage.get(State, state_id)
@@ -60,8 +60,8 @@ def post_city(state_id):
         new_city = City(**data)
         new_city.state_id = state.id
         new_city.save()
-        #storage.new(new_city)
-        #storage.save()
+        # storage.new(new_city)
+        # storage.save()
         return jsonify(new_city.to_dict()), 201
 
 
@@ -79,4 +79,3 @@ def update_city(city_id):
     storage.save()
 
     return jsonify(obj.to_dict())
-

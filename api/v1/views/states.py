@@ -6,6 +6,7 @@ from api.v1.views import app_views
 from models import storage
 from api.v1.app import not_found_error
 
+
 @app_views.route("/states", strict_slashes=False)
 def get_states():
     """return list of all states"""
@@ -26,7 +27,8 @@ def get_states_id(state_id):
     return not_found_error("error")
 
 
-@app_views.route("/states/<state_id>", strict_slashes=False, methods=["DELETE"])
+@app_views.route('/states/<state_id>', methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state(state_id):
     """delete a state"""
     states = storage.all("State").values()
@@ -55,10 +57,8 @@ def post_state():
         return jsonify(response), 201
 
 
-
 @app_views.route('/states/<state_id>', methods=['PUT'],
                  strict_slashes=False)
-
 def update_state(state_id):
     """ update method """
     if not request.get_json():
