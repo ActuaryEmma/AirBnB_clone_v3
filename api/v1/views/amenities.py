@@ -4,6 +4,8 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
 from models.amenity import Amenity
+from api.v1.app import not_found_error
+
 
 @app_views.route("/amenities", methods=['GET'], strict_slashes=False)
 def get_all_amenities():
@@ -11,14 +13,16 @@ def get_all_amenities():
     all_list = [obj.to_dict() for obj in storage.all(Amenity).values()]
     return jsonify(all_list)
 
+
 @app_views.route("/amenities/<string:amenity_id>", methods=['GET'],
                  strict_slashes=False)
 def get_amenity(amenity_id):
     """ get amenity by id"""
     amenity = storage.get(Amenity, amenity_id)
     if amenity is None:
-        abort(404)
+        return not_found_error("error")
     return jsonify(amenity.to_dict())
+
 
 @app_views.route("/amenities/<string:amenity_id>", methods=['DELETE'],
                  strict_slashes=False)
@@ -26,10 +30,11 @@ def del_amenity(amenity_id):
     """ delete amenity by id"""
     amenity = storage.get(Amenity, amenity_id)
     if amenity is None:
-        abort(404)
+        return not_found_error("error")
     amenity.delete()
     storage.save()
     return jsonify({})
+
 
 @app_views.route("/amenities/", methods=['POST'],
                  strict_slashes=False)
@@ -44,6 +49,7 @@ def create_obj_amenity():
     obj.save()
     return (jsonify(obj.to_dict()), 201)
 
+
 @app_views.route("/amenities/<string:amenity_id>", methods=['PUT'],
                  strict_slashes=False)
 def post_amenity(amenity_id):
@@ -52,7 +58,7 @@ def post_amenity(amenity_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(Amenity, amenity_id)
     if obj is None:
-        abort(404)
+        return not_found_error("error")
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(obj, key, value)
