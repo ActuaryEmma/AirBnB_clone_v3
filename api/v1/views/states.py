@@ -53,8 +53,7 @@ def post_state():
         new_state = State(**data)
         storage.new(new_state)
         storage.save()
-        response = {"name": item_name}
-        return jsonify(response), 201
+        return jsonify(new_state.to_dict()), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'],
