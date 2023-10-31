@@ -13,11 +13,13 @@ app.register_blueprint(app_views)
 
 @app.teardown_appcontext
 def destroy(obj):
+    """destroy an obj"""
     storage.close()
 
 
 @app.errorhandler(404)
 def not_found_error(error):
+    """return 404"""
     return jsonify({"error": "Not found"}), 404
 
 if __name__ == '__main__':
