@@ -21,25 +21,21 @@ def get_all_users():
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["GET"])
 def get_user(user_id):
     """ get user by id"""
-    users = storage.all(User).values()
-    if not users:
+    user = storage.get(User, user_id)
+    if not user:
         abort(404)
-    for user in users:
-        if user.id == user_id:
-            return jsonify(user.to_dict())
+    return jsonify(user.to_dict())
 
 
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["DELETE"])
 def del_user(user_id):
     """ delete user by id"""
-    users = storage.all(User).values()
-    if not users:
+    user = storage.get(User, user_id)
+    if not user:
         abort(404)
-    for user in users:
-        if user.id == user_id:
-            storage.delete(user)
-            storage.save()
-            return jsonify({})
+    storage.delete(user)
+    storage.save()
+    return jsonify({})
 
 
 @app_views.route("/users/", strict_slashes=False, methods=["POST"])
