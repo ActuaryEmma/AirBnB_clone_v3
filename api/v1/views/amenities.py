@@ -20,26 +20,22 @@ def get_all_amenities():
                  strict_slashes=False)
 def get_amenity(amenity_id):
     """ get amenity by id"""
-    amenities = storage.all(Amenity).values()
-    if not amenities:
+    amenity = storage.get(Amenity, amenity_id)
+    if not amenity:
         abort(404)
-    for amenity in amenities:
-        if amenity.id == amenity_id:
-            return jsonify(amenity.to_dict())
+    return jsonify(amenity.to_dict())
 
 
 @app_views.route("/amenities/<amenity_id>", methods=['DELETE'],
                  strict_slashes=False)
 def del_amenity(amenity_id):
     """ delete amenity by id"""
-    amenities = storage.all(Amenity).values()
-    if not amenities:
+    amenity= storage.get(Amenity, amenity_id)
+    if not amenity:
         abort(404)
-    for amenity in amenities:
-        if amenity.id == amenity_id:
-            storage.delete(amenity)
-            storage.save()
-            return jsonify({}), 200
+    storage.delete(amenity)
+    storage.save()
+    return jsonify({}), 200
 
 
 @app_views.route("/amenities/", methods=['POST'],
