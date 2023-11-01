@@ -4,7 +4,6 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
 from models.amenity import Amenity
-from api.v1.app import not_found_error
 
 
 @app_views.route("/amenities", methods=['GET'], strict_slashes=False)
@@ -22,10 +21,11 @@ def get_all_amenities():
 def get_amenity(amenity_id):
     """ get amenity by id"""
     amenities = storage.all(Amenity).values()
+    if not amenities:
+        abort(404)
     for amenity in amenities:
         if amenity.id == amenity_id:
             return jsonify(amenity.to_dict())
-    return not_found_error("error")
 
 
 @app_views.route("/amenities/<amenity_id>", methods=['DELETE'],
@@ -33,12 +33,13 @@ def get_amenity(amenity_id):
 def del_amenity(amenity_id):
     """ delete amenity by id"""
     amenities = storage.all(Amenity).values()
+    if not amenities:
+        abort(404)
     for amenity in amenities:
         if amenity.id == amenity_id:
             storage.delete(amenity)
             storage.save()
             return jsonify({}), 200
-    return not_found_error("error")
 
 
 @app_views.route("/amenities/", methods=['POST'],
@@ -66,7 +67,7 @@ def update_amenity(amenity_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(Amenity, amenity_id)
     if obj is None:
-        return not_found_error("error")
+        abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(obj, key, value)

@@ -10,8 +10,6 @@ from models.city import City
 from models.user import User
 from models.amenity import Amenity
 from models.state import State
-from api.v1.app import not_found_error
-from api.v1.views.cities import get_cities
 
 
 @app_views.route("cities/<city_id>/places",  methods=['GET'],
@@ -19,6 +17,8 @@ from api.v1.views.cities import get_cities
 def list_places(city_id):
     """Retrive places associated with a specific city"""
     city_list = storage.all("City").values()
+    if not city_list:
+        abort(404)
     places_list = []
     for city in city_list:
         if city.id == city_id:
@@ -26,18 +26,17 @@ def list_places(city_id):
                 places_list.append(place.to_dict())
             return jsonify(places_list)
 
-    return not_found_error("error")
-
 
 @app_views.route("/places/<place_id>",  methods=['GET'],
                  strict_slashes=False)
 def get_place(place_id):
     """ get place by id """
     place_list = storage.all("Place").values()
+    if not place_list:
+        abort(404)
     for place in place_list:
         if place.id == place_id:
             return jsonify(place.to_dict())
-    return not_found_error("error")
 
 
 @app_views.route("/places/<place_id>", methods=['DELETE'],
@@ -45,12 +44,13 @@ def get_place(place_id):
 def del_place(place_id):
     """ delete place by id """
     place_list = storage.all("Place").values()
+    if not place_list:
+        abort(404)
     for place in place_list:
         if place.id == place_id:
             storage.delete(place)
             storage.save()
             return jsonify({}), 200
-    return not_found_error("error")
 
 
 @app_views.route("/cities/<city_id>/places", methods=['POST'],
@@ -62,7 +62,7 @@ def create_obj_place(city_id):
     data = request.get_json()
     print(data)
     if not city:
-        return not_found_error("City not found")
+        abort(404)
     if not data:
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     elif 'user_id' not in data:
@@ -72,7 +72,7 @@ def create_obj_place(city_id):
     else:
         user = storage.get(User, data['user_id'])
         if not user:
-            return not_found_error("User not found")
+            abort(404)
         new_place = Place(**data)
         new_place.city_id = city.id
         new_place.save()
@@ -87,7 +87,7 @@ def update_place(place_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(Place, place_id)
     if obj is None:
-        return not_found_error("error")
+        abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'user_id', 'city_id', 'created_at', 'updated']:
             setattr(obj, key, value)

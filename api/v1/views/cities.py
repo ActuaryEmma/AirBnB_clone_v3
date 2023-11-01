@@ -5,7 +5,6 @@ from models.state import State
 from flask import Flask, jsonify, request, abort, make_response
 from api.v1.views import app_views
 from models import storage
-from api.v1.app import not_found_error
 
 
 @app_views.route("/states/<state_id>/cities", strict_slashes=False)
@@ -26,7 +25,7 @@ def get_city(city_id):
     """ get city by id"""
     city = storage.get(City, city_id)
     if city is None:
-        not_found_error("error")
+        abort(404)
     return jsonify(city.to_dict())
 
 
@@ -35,12 +34,13 @@ def get_city(city_id):
 def delete_city(city_id):
     """ delete city by id"""
     cities = storage.all("City").values()
+    if not cities:
+        abort(404)
     for city in cities:
         if city.id == city_id:
             storage.delete(city)
             storage.save()
             return jsonify({}), 200
-    return not_found_error("error")
 
 
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
@@ -49,7 +49,7 @@ def post_city(state_id):
     """create a city"""
     state = storage.get(State, state_id)
     if state is None:
-        return not_found_error("error")
+        abort(404)
     data = request.get_json()
     if not data:
         return make_response(jsonify({"error": "Not a JSON"}), 400)
@@ -72,7 +72,7 @@ def update_city(city_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(City, city_id)
     if obj is None:
-        return not_found_error("error")
+        abort(404)
     for key, value in request.get_json().items():
         if key not in ['state_id', 'id', 'created_at', 'updated']:
             setattr(obj, key, value)

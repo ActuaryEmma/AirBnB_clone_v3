@@ -6,7 +6,6 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
 from models.user import User
-from api.v1.app import not_found_error
 
 
 @app_views.route("/users")
@@ -23,22 +22,24 @@ def get_all_users():
 def get_user(user_id):
     """ get user by id"""
     users = storage.all(User).values()
+    if not users:
+        abort(404)
     for user in users:
         if user.id == user_id:
             return jsonify(user.to_dict())
-    return not_found_error("error")
 
 
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["DELETE"])
 def del_user(user_id):
     """ delete user by id"""
     users = storage.all(User).values()
+    if not users:
+        abort(404)
     for user in users:
         if user.id == user_id:
             storage.delete(user)
             storage.save()
             return jsonify({})
-    return not_found_error("error")
 
 
 @app_views.route("/users/", strict_slashes=False, methods=["POST"])
@@ -64,7 +65,7 @@ def put_user(user_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(User, user_id)
     if obj is None:
-        return not_found_error("error")
+        abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'email', 'created_at', 'updated']:
             setattr(obj, key, value)

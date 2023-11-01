@@ -4,7 +4,6 @@ from models.state import State
 from flask import Flask, jsonify, request, abort, make_response
 from api.v1.views import app_views
 from models import storage
-from api.v1.app import not_found_error
 
 
 @app_views.route("/states", strict_slashes=False)
@@ -21,10 +20,11 @@ def get_states():
 def get_states_id(state_id):
     """return one state based on the id"""
     states = storage.all("State").values()
+    if not states:
+        abort(404)
     for state in states:
         if state.id == state_id:
             return jsonify(state.to_dict())
-    return not_found_error("error")
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'],
@@ -32,12 +32,13 @@ def get_states_id(state_id):
 def delete_state(state_id):
     """delete a state"""
     states = storage.all("State").values()
+    if not states:
+        abort(404)
     for state in states:
         if state.id == state_id:
             storage.delete(state)
             storage.save()
             return jsonify({}), 200
-    return not_found_error("error")
 
 
 @app_views.route("/states", strict_slashes=False, methods=["POST"])
@@ -64,7 +65,7 @@ def update_state(state_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(State, state_id)
     if obj is None:
-        return not_found_error("error")
+        abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated']:
             setattr(obj, key, value)
