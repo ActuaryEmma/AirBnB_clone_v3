@@ -16,41 +16,36 @@ from models.state import State
                  strict_slashes=False)
 def list_places(city_id):
     """Retrive places associated with a specific city"""
-    city_list = storage.all("City").values()
-    if not city_list:
+    city = storage.get(City, city_id)
+    print(city)
+    if not city:
         abort(404)
     places_list = []
-    for city in city_list:
-        if city.id == city_id:
-            for place in city.places:
-                places_list.append(place.to_dict())
-            return jsonify(places_list)
+    for place in city.places:
+        places_list.append(place.to_dict())
+    return jsonify(places_list)
 
 
 @app_views.route("/places/<place_id>",  methods=['GET'],
                  strict_slashes=False)
 def get_place(place_id):
     """ get place by id """
-    place_list = storage.all("Place").values()
-    if not place_list:
+    place = storage.get(Place, place_id)
+    if not place:
         abort(404)
-    for place in place_list:
-        if place.id == place_id:
-            return jsonify(place.to_dict())
+    return jsonify(place.to_dict())
 
 
 @app_views.route("/places/<place_id>", methods=['DELETE'],
                  strict_slashes=False)
 def del_place(place_id):
     """ delete place by id """
-    place_list = storage.all("Place").values()
-    if not place_list:
+    place = storage.get(Place, place_id)
+    if not place:
         abort(404)
-    for place in place_list:
-        if place.id == place_id:
-            storage.delete(place)
-            storage.save()
-            return jsonify({}), 200
+    storage.delete(place)
+    storage.save()
+    return jsonify({}), 200
 
 
 @app_views.route("/cities/<city_id>/places", methods=['POST'],
