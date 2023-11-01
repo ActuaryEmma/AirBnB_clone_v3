@@ -19,26 +19,22 @@ def get_states():
 @app_views.route("/states/<state_id>", strict_slashes=False)
 def get_states_id(state_id):
     """return one state based on the id"""
-    states = storage.all("State").values()
-    if not states:
+    state = storage.get(State, state_id)
+    if not state:
         abort(404)
-    for state in states:
-        if state.id == state_id:
-            return jsonify(state.to_dict())
+    return jsonify(state.to_dict())
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'],
                  strict_slashes=False)
 def delete_state(state_id):
     """delete a state"""
-    states = storage.all("State").values()
-    if not states:
+    state = storage.get(State, state_id)
+    if not state:
         abort(404)
-    for state in states:
-        if state.id == state_id:
-            storage.delete(state)
-            storage.save()
-            return jsonify({}), 200
+    storage.delete(state)
+    storage.save()
+    return jsonify({}), 200
 
 
 @app_views.route("/states", strict_slashes=False, methods=["POST"])
