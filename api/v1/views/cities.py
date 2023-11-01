@@ -12,7 +12,7 @@ def get_cities(state_id):
     """return list of all cities"""
     state = storage.get(State, state_id)
     if state is None:
-        return not_found_error("error")
+        abort(404)
     city_list = []
     for city in state.cities:
         city_list.append(city.to_dict())
@@ -33,14 +33,12 @@ def get_city(city_id):
                  strict_slashes=False)
 def delete_city(city_id):
     """ delete city by id"""
-    cities = storage.all("City").values()
-    if not cities:
+    city = storage.get(City, city_id)
+    if not city:
         abort(404)
-    for city in cities:
-        if city.id == city_id:
-            storage.delete(city)
-            storage.save()
-            return jsonify({}), 200
+    storage.delete(city)
+    storage.save()
+    return jsonify({}), 200
 
 
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
@@ -60,8 +58,6 @@ def post_city(state_id):
         new_city = City(**data)
         new_city.state_id = state.id
         new_city.save()
-        # storage.new(new_city)
-        # storage.save()
         return jsonify(new_city.to_dict()), 201
 
 
