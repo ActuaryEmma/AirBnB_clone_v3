@@ -14,7 +14,8 @@ from api.v1.app import not_found_error
 from api.v1.views.cities import get_cities
 
 
-@app_views.route("/cities/<city_id>/places", methods=['GET'], strict_slashes=False)
+@app_views.route("cities/<city_id>/places",  methods=['GET'],
+                 strict_slashes=False)
 def list_places(city_id):
     """Retrive places associated with a specific city"""
     city_list = storage.all("City").values()
