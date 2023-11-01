@@ -13,11 +13,13 @@ from models.user import User
 
 @app_views.route("/status")
 def status():
+    """ route status that return status ok """
     return jsonify({"status": "OK"})
 
 
 @app_views.route("/stats")
 def count_obj():
+    """ return the count of obj """
     object_counts = {
         'amenities': storage.count('Amenity'),
         'cities': storage.count('City'),
