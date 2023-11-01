@@ -30,7 +30,7 @@ def get_amenity(amenity_id):
                  strict_slashes=False)
 def del_amenity(amenity_id):
     """ delete amenity by id"""
-    amenity= storage.get(Amenity, amenity_id)
+    amenity = storage.get(Amenity, amenity_id)
     if not amenity:
         abort(404)
     storage.delete(amenity)
